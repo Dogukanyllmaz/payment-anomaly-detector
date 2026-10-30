@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PaymentAnomalies.Core\PaymentAnomalies.Core.csproj" />
+    <ProjectReference Include="..\..\src\PaymentAnomalies.Cli\PaymentAnomalies.Cli.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- the sample data doubles as the end-to-end fixture -->
+    <None Include="..\..\data\*" LinkBase="sample" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

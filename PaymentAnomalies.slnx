@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PaymentAnomalies.Core/PaymentAnomalies.Core.csproj" />
+    <Project Path="src/PaymentAnomalies.Cli/PaymentAnomalies.Cli.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PaymentAnomalies.Tests/PaymentAnomalies.Tests.csproj" />
+  </Folder>
+</Solution>
