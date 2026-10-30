@@ -1,0 +1,13 @@
+Id,RequesterId,ApproverId,SupplierId,Amount,ApprovedAt
+PO-001,e.sahin,m.demir,SUP-201,22000,2026-03-02T09:40
+PO-002,u.kaya,m.demir,SUP-202,38000,2026-03-03T10:15
+PO-003,u.kaya,m.demir,SUP-202,34500,2026-03-03T15:50
+PO-004,u.kaya,m.demir,SUP-202,29900,2026-03-04T11:05
+PO-005,a.celik,a.celik,SUP-203,8750,2026-03-05T14:20
+PO-006,e.sahin,s.arslan,SUP-204,145000,2026-03-06T10:30
+PO-007,u.kaya,s.arslan,SUP-205,6400,2026-03-07T11:45
+PO-008,a.celik,m.demir,SUP-201,15300,2026-03-09T22:15
+PO-009,e.sahin,m.demir,SUP-201,48000,2026-03-10T09:10
+PO-010,e.sahin,m.demir,SUP-201,47000,2026-03-16T10:00
+PO-011,u.kaya,s.arslan,SUP-202,41000,2026-03-23T13:30
+PO-012,a.celik,s.arslan,SUP-203,12900,2026-03-24T16:45

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>paymentanomalies</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PaymentAnomalies.Core\PaymentAnomalies.Core.csproj" />
+    <InternalsVisibleTo Include="PaymentAnomalies.Tests" />
+  </ItemGroup>
+
+</Project>

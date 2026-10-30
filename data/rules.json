@@ -1,0 +1,7 @@
+{
+  "DuplicateWindowDays": 7,
+  "SplitWindowDays": 3,
+  "ApprovalLimit": 100000,
+  "WorkdayStart": "07:00:00",
+  "WorkdayEnd": "20:00:00"
+}
