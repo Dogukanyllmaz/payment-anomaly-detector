@@ -26,13 +26,15 @@ public static class Audit
 /// <summary>Same supplier billing the same amount twice within a few days: the classic double payment.</summary>
 public sealed class DuplicateInvoiceRule(RuleOptions options) : IRule
 {
+    public const string Name = "Duplicate invoice";
+
     public IEnumerable<Finding> Evaluate(AuditData data) =>
         from g in data.Invoices.GroupBy(i => (Supplier: i.SupplierId.ToUpperInvariant(), i.Amount))
         let sorted = g.OrderBy(i => i.Date).ToList()
         from pair in sorted.Zip(sorted.Skip(1))
         let days = pair.Second.Date.DayNumber - pair.First.Date.DayNumber
         where days <= options.DuplicateWindowDays
-        select new Finding("Duplicate invoice", [pair.First.Id, pair.Second.Id],
+        select new Finding(Name, [pair.First.Id, pair.Second.Id],
             Invariant($"{pair.First.SupplierId} billed {pair.First.Amount:N2} twice, {days} day(s) apart"));
 }
 
@@ -42,6 +44,8 @@ public sealed class DuplicateInvoiceRule(RuleOptions options) : IRule
 /// </summary>
 public sealed class SplitOrderRule(RuleOptions options) : IRule
 {
+    public const string Name = "Split order";
+
     public IEnumerable<Finding> Evaluate(AuditData data)
     {
         var window = TimeSpan.FromDays(options.SplitWindowDays);
@@ -67,7 +71,7 @@ public sealed class SplitOrderRule(RuleOptions options) : IRule
                 }
 
                 var days = (cluster[^1].ApprovedAt - cluster[0].ApprovedAt).Days;
-                yield return new Finding("Split order", cluster.Select(o => o.Id).ToList(),
+                yield return new Finding(Name, cluster.Select(o => o.Id).ToList(),
                     Invariant($"{cluster[0].RequesterId} placed {cluster.Count} orders with {cluster[0].SupplierId} within {days} day(s), total {total:N0}, each below the {options.ApprovalLimit:N0} limit"));
                 start += cluster.Count;
             }
@@ -78,21 +82,25 @@ public sealed class SplitOrderRule(RuleOptions options) : IRule
 /// <summary>Requester approved their own order: no segregation of duties.</summary>
 public sealed class SelfApprovalRule : IRule
 {
+    public const string Name = "Self-approval";
+
     public IEnumerable<Finding> Evaluate(AuditData data) =>
         from o in data.Orders
         where string.Equals(o.RequesterId, o.ApproverId, StringComparison.OrdinalIgnoreCase)
-        select new Finding("Self-approval", [o.Id], $"{o.RequesterId} approved their own order");
+        select new Finding(Name, [o.Id], $"{o.RequesterId} approved their own order");
 }
 
 /// <summary>Approval given at the weekend or outside working hours, when review is least likely.</summary>
 public sealed class OffHoursApprovalRule(RuleOptions options) : IRule
 {
+    public const string Name = "Off-hours approval";
+
     public IEnumerable<Finding> Evaluate(AuditData data) =>
         from o in data.Orders
         let time = TimeOnly.FromDateTime(o.ApprovedAt)
         where o.ApprovedAt.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday
               || time < options.WorkdayStart
               || time >= options.WorkdayEnd
-        select new Finding("Off-hours approval", [o.Id],
+        select new Finding(Name, [o.Id],
             Invariant($"Approved by {o.ApproverId} on {o.ApprovedAt:ddd yyyy-MM-dd HH:mm}"));
 }

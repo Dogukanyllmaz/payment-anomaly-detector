@@ -42,6 +42,74 @@ public sealed class AppTests : IDisposable
     }
 
     [Fact]
+    public void Json_option_also_writes_the_findings_as_json_for_the_web_demo()
+    {
+        var sample = Path.Combine(AppContext.BaseDirectory, "sample");
+        var json = Path.Combine(_folder, "report.json");
+
+        var code = Run(sample, Report, "--json", json);
+
+        Assert.Equal(App.FindingsFound, code);
+        using var document = System.Text.Json.JsonDocument.Parse(File.ReadAllText(json));
+        Assert.Equal(5, document.RootElement.GetProperty("findings").GetArrayLength());
+    }
+
+    [Fact]
+    public void Json_option_without_a_path_exits_2_with_usage()
+    {
+        Assert.Equal(App.Failed, Run(_folder, "--json"));
+        Assert.Contains("Usage:", _err.ToString());
+    }
+
+    [Theory]
+    [InlineData("--json", "-h")]
+    [InlineData("--json", "a.json", "--json", "b.json")]
+    public void Json_option_with_a_flag_as_value_or_given_twice_exits_2_with_usage(params string[] args)
+    {
+        Assert.Equal(App.Failed, Run([_folder, Report, .. args]));
+        Assert.Contains("Usage:", _err.ToString());
+    }
+
+    [Fact]
+    public void Json_path_in_a_missing_folder_exits_2_and_leaves_no_csv_report_either()
+    {
+        Write(Rules, [], ["P1,u.kaya,u.kaya,SUP-1,100,2026-05-04T10:00"]);
+
+        var code = Run(_folder, Report, "--json", Path.Combine(_folder, "missing", "r.json"));
+
+        Assert.Equal(App.Failed, code);
+        Assert.False(File.Exists(Report));
+    }
+
+    [Theory]
+    [InlineData("orders.csv", null)]
+    [InlineData("report.csv", "orders.csv")]
+    [InlineData("report.csv", "report.csv")]
+    public void Report_paths_that_point_at_an_input_or_at_each_other_exit_2_and_touch_nothing(
+        string report, string? json)
+    {
+        Write(Rules, [], ["P1,u.kaya,u.kaya,SUP-1,100,2026-05-04T10:00"]);
+        var orders = Path.Combine(_folder, "orders.csv");
+        string[] args = json is null
+            ? [_folder, Path.Combine(_folder, report)]
+            : [_folder, Path.Combine(_folder, report), "--json", Path.Combine(_folder, json)];
+
+        Assert.Equal(App.Failed, Run(args));
+        Assert.Equal(2, File.ReadAllLines(orders).Length);
+    }
+
+    [Fact]
+    public void Failed_run_also_removes_the_previous_json_report()
+    {
+        var json = Path.Combine(_folder, "report.json");
+        File.WriteAllText(json, "stale");
+        Write(Rules, [], ["P1,u.kaya,m.demir,SUP-1,abc,2026-05-04T10:00"]);
+
+        Assert.Equal(App.Failed, Run(_folder, Report, "--json", json));
+        Assert.False(File.Exists(json));
+    }
+
+    [Fact]
     public void Clean_data_exits_0_and_still_writes_an_empty_report()
     {
         Write(Rules, ["I1,SUP-1,A-1,2026-05-04,100"], ["P1,u.kaya,m.demir,SUP-1,100,2026-05-04T10:00"]);
