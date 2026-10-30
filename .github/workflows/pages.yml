@@ -27,6 +27,7 @@ jobs:
 
       - name: Export the sample audit as JSON (exit 1 = findings, which the sample is built to contain)
         run: |
+          mkdir -p web/public/data
           set +e
           dotnet run --project src/PaymentAnomalies.Cli -c Release -- data findings.csv --json web/public/data/report.json
           code=$?
