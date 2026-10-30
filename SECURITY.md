@@ -9,10 +9,13 @@ You can expect an acknowledgement within a few working days.
 
 ## Scope
 
-This is a local command-line tool. It reads CSV and JSON files from a folder you choose and writes one CSV report;
-it opens no network connections and stores no credentials. Relevant issues include crafted input files that
-crash the tool in an unhandled way, read or write outside the given paths, or produce a report that runs code
-when opened in a spreadsheet.
+This is a local command-line tool. It reads CSV and JSON files from a folder you choose and writes a CSV report
+(and, on request, a JSON report); it opens no network connections and stores no credentials. Relevant issues include
+crafted input files that crash the tool in an unhandled way, read or write outside the given paths, or produce a
+report that runs code when opened in a spreadsheet.
+
+The live demo is a static page on GitHub Pages that shows the sample report. Issues there include anything that lets
+report content run as script in the page.
 
 ## Data
 

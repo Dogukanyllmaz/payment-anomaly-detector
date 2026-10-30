@@ -13,6 +13,22 @@ Done by hand, these audit tests mean sampling a spreadsheet once a year. Written
 transaction each time the export is refreshed, and the exit code lets a scheduler or CI pipeline react to the
 result. All data in this repository is synthetic.
 
+> **Live demo:** https://dogukanyllmaz.github.io/payment-anomaly-detector/
+>
+> The page is rebuilt by CI on every push: the CLI audits the sample data and the web app shows each finding with
+> the documents behind it.
+
+| Overview and evidence | Dark mode |
+|---|---|
+| ![Findings by rule, with the invoices behind a duplicate payment](docs/screenshots/overview-light.png) | ![The same view in dark mode](docs/screenshots/overview-dark.png) |
+
+<details>
+<summary>Narrow screens</summary>
+
+![Phone-width layout](docs/screenshots/mobile.png)
+
+</details>
+
 ## Rules
 
 | Rule | Flags | Why it matters |
@@ -77,6 +93,9 @@ Run it on your own export (paths are relative to the current directory):
 dotnet run --project src/PaymentAnomalies.Cli -- path/to/export path/to/report.csv
 ```
 
+Add `--json path/to/report.json` to also write the findings with their documents, the summary and the thresholds as
+JSON; this is what the web demo reads.
+
 ### Exit codes
 
 | Code | Meaning |
@@ -108,8 +127,11 @@ Use it as a gate, for example in a nightly job: fail or notify on `1`, alert the
 - The report is safe to open in a spreadsheet: values starting with `=`, `+`, `-`, `@` or a tab are prefixed
   with `'`, so a formula smuggled in through the input data cannot run. It is written as UTF-8 with a BOM so
   Turkish and other non-ASCII names display correctly.
-- No network access, no credentials, no database. CI runs with read-only permissions; CodeQL scans every push
-  and weekly; Dependabot keeps NuGet packages and Actions current.
+- No network access, no credentials, no database. CI runs with read-only permissions (only the Pages deploy job
+  can publish); CodeQL scans every push and weekly; Dependabot keeps NuGet, npm packages and Actions current.
+- The web demo is a static page: it loads one JSON file from its own site, validates it with a schema before
+  rendering, renders every value as text (no HTML injection) and makes no third-party requests (no CDN, fonts or
+  analytics).
 - See [SECURITY.md](SECURITY.md) to report a vulnerability.
 
 ## Known limitations
@@ -128,6 +150,13 @@ dotnet test       # unit + end-to-end tests
 dotnet format --verify-no-changes
 ```
 
+Web demo (React 19, TypeScript, Vite; the JSON is validated with zod before it is shown):
+
+```bash
+dotnet run --project src/PaymentAnomalies.Cli -- data findings.csv --json web/public/data/report.json
+cd web && npm ci && npm run dev    # npm test, npm run build
+```
+
 | Path | Purpose |
 |---|---|
 | `src/PaymentAnomalies.Core/Rules.cs` | The four rules and `Audit.Run` |
@@ -135,7 +164,10 @@ dotnet format --verify-no-changes
 | `src/PaymentAnomalies.Core/Domain.cs` | Invoice, order, finding and threshold records; strict `rules.json` loading |
 | `src/PaymentAnomalies.Core/ReportWriter.cs` | Formula-safe CSV report |
 | `src/PaymentAnomalies.Cli/App.cs` | Arguments, exit codes and error messages |
+| `src/PaymentAnomalies.Core/JsonReport.cs` | Findings with their documents as JSON for the web demo |
 | `tests/PaymentAnomalies.Tests` | xUnit tests for every rule, boundary and failure path, plus an end-to-end run on the sample data |
+| `web/` | Live demo: summary, filter by rule, and the evidence behind each finding (Vitest + Testing Library) |
+| `.github/workflows/pages.yml` | Audits the sample data and publishes the demo to GitHub Pages |
 
 ## License
 
